@@ -1,15 +1,16 @@
-import os
-import fitz
+import fitz 
 from docx import Document
 import json
 import requests
 from flask import Flask, request, jsonify, send_from_directory
+
 
 with open("config.json", "r") as config_file:
     config = json.load(config_file)
 
 API_URL = config["API_URL"]
 API_KEY = config["API_KEY"]
+
 
 HEADERS = {
     "Content-Type": "application/json",
@@ -18,16 +19,19 @@ HEADERS = {
 
 app = Flask(__name__)
 
-def extract_text_from_docx(filepath):
-    doc = Document(filepath)
+
+def extract_text_from_docx(file):
+    doc = Document(file)
     return "\n".join([para.text for para in doc.paragraphs])
 
-def extract_text_from_pdf(filepath):
-    doc = fitz.open(filepath)
+
+def extract_text_from_pdf(file):
+    doc = fitz.open(stream=file.read(), filetype="pdf")
     text = ""
     for page_num in range(doc.page_count):
         text += doc.load_page(page_num).get_text("text")
     return text
+
 
 def generate_interview_questions_and_skills(resume_text):
     prompt = f"""
@@ -68,6 +72,7 @@ def generate_interview_questions_and_skills(resume_text):
     else:
         return f"Error: {response.status_code} - {response.text}"
 
+
 @app.route('/generate', methods=['POST'])
 def generate():
     if 'resumeFile' not in request.files:
@@ -77,24 +82,21 @@ def generate():
     if file.filename == '':
         return "No selected file", 400
 
-    filename = file.filename
-    filepath = os.path.join("./uploads", filename)
-    file.save(filepath)
-
-    if filename.endswith(".docx"):
-        resume_text = extract_text_from_docx(filepath)
-    elif filename.endswith(".pdf"):
-        resume_text = extract_text_from_pdf(filepath)
+    if file.filename.endswith(".docx"):
+        resume_text = extract_text_from_docx(file)
+    elif file.filename.endswith(".pdf"):
+        resume_text = extract_text_from_pdf(file)
     else:
         return "Unsupported file type", 400
 
+
     result = generate_interview_questions_and_skills(resume_text)
     return result
+
 
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
 
 if __name__ == '__main__':
-    os.makedirs("./uploads", exist_ok=True)
-    app.run(debug=True, host='0.0.0.0', port=5000) 
+    app.run(debug=True, host='0.0.0.0', port=5000)
