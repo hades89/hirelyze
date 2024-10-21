@@ -12,16 +12,10 @@ Hirelyze is an interview automation and resume analysis tool designed to streaml
 
 ## How to run
 1) Clone the repo
-2) Create a config.json file in the root directory with the following structure:
-```
-{
-  "API_URL": "<nexus-api-url>",
-  "API_KEY": "<your-api-key>"
-}
-```
-4) Pip install PyMuPDF, python-docx, flask
-5) Start the server using `python main.py`
-6) In the browser, nagivate to correct url that shows in the console, for example:
+2) Replace the API_URL and API_KEY with the actual value in .env file:
+3) Pip install PyMuPDF, python-docx, flask
+4) Start the server using `python main.py`
+5) In the browser, nagivate to correct url that shows in the console, for example:
 ```
  * Running on http://127.0.0.1:5000
  * Running on http://192.168.1.112:5000
