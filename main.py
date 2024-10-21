@@ -1,6 +1,6 @@
 import os
-import fitz  # PyMuPDF for PDF parsing
-from docx import Document  # For DOCX files
+import fitz
+from docx import Document
 import json
 import requests
 from flask import Flask, request, jsonify, send_from_directory
@@ -11,7 +11,6 @@ with open("config.json", "r") as config_file:
 API_URL = config["API_URL"]
 API_KEY = config["API_KEY"]
 
-# Set headers for the POST request
 HEADERS = {
     "Content-Type": "application/json",
     "api-key": API_KEY
@@ -19,12 +18,10 @@ HEADERS = {
 
 app = Flask(__name__)
 
-# Function to extract text from DOCX files
 def extract_text_from_docx(filepath):
     doc = Document(filepath)
     return "\n".join([para.text for para in doc.paragraphs])
 
-# Function to extract text from PDF files
 def extract_text_from_pdf(filepath):
     doc = fitz.open(filepath)
     text = ""
@@ -32,7 +29,6 @@ def extract_text_from_pdf(filepath):
         text += doc.load_page(page_num).get_text("text")
     return text
 
-# Generate interview questions and skills using OpenAI API
 def generate_interview_questions_and_skills(resume_text):
     prompt = f"""
        You are an expert resume analyzer and interviewer. From the following resume:
@@ -72,7 +68,6 @@ def generate_interview_questions_and_skills(resume_text):
     else:
         return f"Error: {response.status_code} - {response.text}"
 
-# Route to handle file upload and question generation
 @app.route('/generate', methods=['POST'])
 def generate():
     if 'resumeFile' not in request.files:
@@ -86,7 +81,6 @@ def generate():
     filepath = os.path.join("./uploads", filename)
     file.save(filepath)
 
-    # Extract text based on file type
     if filename.endswith(".docx"):
         resume_text = extract_text_from_docx(filepath)
     elif filename.endswith(".pdf"):
@@ -94,15 +88,13 @@ def generate():
     else:
         return "Unsupported file type", 400
 
-    # Generate interview questions and skills
     result = generate_interview_questions_and_skills(resume_text)
     return result
 
-# Serve static files (HTML UI)
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
 
 if __name__ == '__main__':
-    os.makedirs("./uploads", exist_ok=True)  # Ensure uploads folder exists
+    os.makedirs("./uploads", exist_ok=True)
     app.run(debug=True, host='0.0.0.0', port=5000) 
