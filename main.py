@@ -2,14 +2,15 @@ import fitz
 from docx import Document
 import json
 import requests
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify, send_from_directory
+import os
 
 
-with open("config.json", "r") as config_file:
-    config = json.load(config_file)
+load_dotenv()
 
-API_URL = config["API_URL"]
-API_KEY = config["API_KEY"]
+API_URL = os.getenv("API_URL")
+API_KEY = os.getenv("API_KEY")
 
 
 HEADERS = {
