@@ -1,7 +1,7 @@
 # Hirelyze
 
 ## Overview
-Hirelyze is an advanced interview automation and resume analysis tool designed to streamline recruitment processes. Leveraging AI-powered algorithms, it extracts key information from resumes and generates targeted interview questions based on the candidate’s skills and experience. The platform supports multiple file formats, ensuring smooth processing of resumes submitted by applicants.
+Hirelyze is an interview automation and resume analysis tool designed to streamline recruitment processes. Leveraging AI-powered algorithms, it extracts key information from resumes and generates targeted interview questions based on the candidate’s skills and experience. The platform supports multiple file formats, namely .pdf and .docx
 
 ## System Requirements
 - Python
