@@ -4,11 +4,11 @@
 Hirelyze is an advanced interview automation and resume analysis tool designed to streamline recruitment processes. Leveraging AI-powered algorithms, it extracts key information from resumes and generates targeted interview questions based on the candidate’s skills and experience. The platform supports multiple file formats, ensuring smooth processing of resumes submitted by applicants.
 
 ## System Requirements
-Python
-PIP
-Libraries: flask, PyMuPDF (fitz), python-docx, requests
-Access to the ChatGPT API
-Web browser for accessing the interface
+- Python
+- PIP
+- Libraries: flask, PyMuPDF (fitz), python-docx, requests
+- Access to the Nexus ChatGPT API
+- Web browser for accessing the interface
 
 ## How to run
 1) Clone the repo
