@@ -1,0 +1,71 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume Interview Question Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .output {
+      margin-top: 20px;
+      white-space: pre-wrap;
+      background-color: #e8e8e8;
+      padding: 10px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Hirelyze</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <label for="resumeFile">Upload Resume (PDF or DOCX):</label><br>
+      <input type="file" id="resumeFile" name="resumeFile" accept=".pdf, .docx" required><br><br>
+      <button type="submit">Generate Questions</button>
+    </form>
+    <div id="output" class="output"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const outputDiv = document.getElementById('output');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const formData = new FormData(form);
+      outputDiv.textContent = "Processing...";
+
+      try {
+        const response = await fetch('/generate', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          const result = await response.text();
+          outputDiv.textContent = result;
+        } else {
+          outputDiv.textContent = `Error: ${response.statusText}`;
+        }
+      } catch (error) {
+        outputDiv.textContent = `Error: ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
