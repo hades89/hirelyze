@@ -26,3 +26,6 @@ Hirelyze is an interview automation and resume analysis tool designed to streaml
  * Running on http://127.0.0.1:5000
  * Running on http://192.168.1.112:5000
 ```
+
+## UI
+![image](https://github.com/user-attachments/assets/864a0e71-51ca-4f95-8243-63a99b3229db)
