@@ -1,4 +1,4 @@
-import fitz 
+import fitz
 from docx import Document
 import json
 import requests
@@ -6,12 +6,10 @@ from dotenv import load_dotenv
 from flask import Flask, request, jsonify, send_from_directory
 import os
 
-
 load_dotenv()
 
 API_URL = os.getenv("API_URL")
 API_KEY = os.getenv("API_KEY")
-
 
 HEADERS = {
     "Content-Type": "application/json",
@@ -20,11 +18,9 @@ HEADERS = {
 
 app = Flask(__name__)
 
-
 def extract_text_from_docx(file):
     doc = Document(file)
     return "\n".join([para.text for para in doc.paragraphs])
-
 
 def extract_text_from_pdf(file):
     doc = fitz.open(stream=file.read(), filetype="pdf")
@@ -33,29 +29,113 @@ def extract_text_from_pdf(file):
         text += doc.load_page(page_num).get_text("text")
     return text
 
+def generate_interview_questions_and_skills(resume_text, additional_skills):
+    skill_prompts = ""
+    for skill in additional_skills:
+        skill_prompts += f"- Generate 10 questions about {skill}.\n"
 
-def generate_interview_questions_and_skills(resume_text):
+
     prompt = f"""
-       You are an expert resume analyzer and interviewer. From the following resume:
-    
-    1. Extract **technical skills** and their **year ranges** in this format:
-       - [Skill Name] | [Start Year - End Year]
-       Example: "Java | 2014-2024"
-    
-    2. Generate exactly **20 questions per applicable section** only, with a focus on practical and conceptual inquiries. 
-       **Only include sections** relevant to the candidate’s resume. Present questions in this format:
-       - [Section Name]:
-         1. [Question 1]
-         2. [Question 2]
-         ...
-         20. [Question 20]
+   You are an expert resume analyzer and interviewer. From the following resume:
 
-    Categories:
-    - UI Development
-    - Backend Development
-    - DevOps (e.g., Kubernetes/Docker)
-    - Software Design
-    - Git and Version Control
+1. Extract **technical skills** and their **year ranges** in a bullet point format without additional headings or explanations:
+   - [Skill Name] | [Start Year - End Year] (Number of years)
+   Example: - "Java | 2014-2024 (10 years)"
+
+2. Include the following additional skills for question generation:
+   - {', '.join(additional_skills)}
+
+3. Assign **only one experience level** to each skill based on the years of experience (do not show it out as result):
+   - **Beginner (Less than 2 years):** Basic questions covering fundamental concepts.
+   - **Intermediate (2-5 years):** Practical questions focusing on usage, scenarios, and problem-solving.
+   - **Advanced (More than 5 years):** Complex questions covering advanced topics, architecture, and deep expertise.
+
+4. Generate exactly **10 questions** for each skill and section, matching the skill’s assigned experience level. Ensure that the questions belong exclusively to the assigned level:
+   - If a skill is Beginner, generate only Beginner-level questions.
+   - If a skill is Intermediate, generate only Intermediate-level questions.
+   - If a skill is Advanced, generate only Advanced-level questions.
+
+5. Skills and sections for question generation:
+   - Frontend (prioritize framework-related questions: Angular, Vue, React; if the candidate lacks these skills, focus on general JavaScript questions)
+   - Backend
+   - DevOps (e.g., Kubernetes/Docker)
+   - Databases
+   - Git and Version Control
+
+{skill_prompts}
+
+6. Ensure the question difficulty **aligns only with the assigned experience level** for each skill.
+
+7. **Ensure that questions generated for Frontend and Backend do not overlap with any of the technical skills extracted or additional skills specified**.
+
+8. Format the output as follows, ensuring the use of headings and numbering:
+   - [Skill Name] | [Start Year - End Year] (Number of years)
+
+   **Frontend Questions (either Beginner, Intermediate, or Advanced)**:
+   1) ....
+   A: ....
+   
+   2) ....
+   A: ....
+   
+   ...
+   
+   10) ....
+   A: ....
+
+   **Backend Questions (either Beginner, Intermediate, or Advanced)**:
+   1) ....
+   A: ....
+   
+   2) ....
+   A: ....
+   
+   ...
+   
+   10) ....
+   A: ....
+
+   **DevOps Questions (either Beginner, Intermediate, or Advanced)**:
+   1) ....
+   A: ....
+   
+   2) ....
+   A: ....
+   
+   ...
+   
+   10) ....
+   A: ....
+
+   **Databases Questions (either Beginner, Intermediate, or Advanced)**:
+   1) ....
+   A: ....
+   
+   2) ....
+   A: ....
+   
+   ...
+   
+   10) ....
+   A: ....
+
+   **Git and Version Control Questions (either Beginner, Intermediate, or Advanced)**:
+   1) ....
+   A: ....
+   
+   2) ....
+   A: ....
+   
+   ...
+   
+   10) ....
+   A: ....
+
+   {skill_prompts}  # This includes both additional skills in the desired format
+
+9. **Generate only the questions without any additional comments or explanations.**
+
+10. **Do not generate questions like “How do you write a ‘Hello, World!’ program.”**
 
     Resume:
     {resume_text}
@@ -73,7 +153,6 @@ def generate_interview_questions_and_skills(resume_text):
     else:
         return f"Error: {response.status_code} - {response.text}"
 
-
 @app.route('/generate', methods=['POST'])
 def generate():
     if 'resumeFile' not in request.files:
@@ -83,6 +162,9 @@ def generate():
     if file.filename == '':
         return "No selected file", 400
 
+    skill1 = request.form.get('skill1', '')
+    skill2 = request.form.get('skill2', '')
+
     if file.filename.endswith(".docx"):
         resume_text = extract_text_from_docx(file)
     elif file.filename.endswith(".pdf"):
@@ -90,10 +172,10 @@ def generate():
     else:
         return "Unsupported file type", 400
 
-
-    result = generate_interview_questions_and_skills(resume_text)
+    additional_skills = [skill for skill in [skill1, skill2] if skill]
+    
+    result = generate_interview_questions_and_skills(resume_text, additional_skills)
     return result
-
 
 @app.route('/')
 def index():
