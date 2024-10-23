@@ -3,32 +3,171 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Resume Interview Question Generator</title>
+  <title>Hirelyze - Resume Interview Question Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0f2f5;
       margin: 0;
       padding: 20px;
     }
+
     .container {
-      max-width: 600px;
-      margin: 0 auto;
+      max-width: 700px;
+      margin: 50px auto;
       background-color: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      font-weight: 500;
+      display: block;
+      margin-top: 15px;
+      color: #444;
+      position: relative;
+    }
+
+    input[type="file"], input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+
+    .tooltip {
+      display: inline-block;
+      margin-left: 5px;
+      position: relative;
+      cursor: pointer;
+      color: #007bff;
+    }
+
+    .tooltip .tooltip-text {
+      visibility: hidden;
+      width: 220px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .tooltip:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    button:disabled {
+      background-color: #ddd;
+      color: #aaa;
+      cursor: not-allowed;
+    }
+
     .output {
       margin-top: 20px;
-      white-space: pre-wrap;
       background-color: #e8e8e8;
-      padding: 10px;
-      border-radius: 4px;
+      padding: 15px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      max-height: 400px;
+      overflow-y: auto;
+      cursor: pointer;
     }
-    button {
-      margin-top: 10px;
-      margin-right: 5px; 
+
+    .accordion {
+      margin-top: 20px;
+      background-color: #f9f9f9;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .accordion-item {
+      border-bottom: 1px solid #ddd;
+    }
+
+    .accordion-header {
+      background-color: #e0e0e0;
+      padding: 10px;
+      cursor: pointer;
+      font-weight: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .accordion-body {
+      padding: 10px;
+      display: none;
+    }
+
+    .tag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      background-color: #007bff;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 50px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .tag-remove {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      .button-container {
+        flex-direction: column;
+        gap: 10px;
+      }
     }
   </style>
 </head>
@@ -36,31 +175,39 @@
   <div class="container">
     <h1>Hirelyze</h1>
     <form id="uploadForm" enctype="multipart/form-data">
-      <label for="resumeFile">Upload Resume (PDF or DOCX):</label><br>
-      <input type="file" id="resumeFile" name="resumeFile" accept=".pdf, .docx" required><br><br>
+      <label for="resumeFile">Upload Resume (PDF or DOCX):</label>
+      <input type="file" id="resumeFile" name="resumeFile" accept=".pdf, .docx" required>
 
-      <label for="skill1">Skill 1:</label><br>
-      <input type="text" id="skill1" name="skill1" placeholder="Enter a skill"><br><br>
+      <label for="skillInput">Additional Skills:
+        <span class="tooltip"><i class="fas fa-info-circle"></i>
+          <span class="tooltip-text">Additional questions will be generated based on the skills you input.</span>
+        </span>
+      </label>
+      <input type="text" id="skillInput" placeholder="Enter a skill and press Enter">
+      <div class="tag-container" id="skillTags"></div>
 
-      <label for="skill2">Skill 2:</label><br>
-      <input type="text" id="skill2" name="skill2" placeholder="Enter another skill"><br><br>
-
-      <button type="submit">Generate Questions and Answers</button>
-      <button id="exportButton" disabled>Export to TXT</button> 
+      <div class="button-container">
+        <button type="submit">Generate Questions and Answers</button>
+        <button id="exportButton" disabled>Export to TXT</button>
+      </div>
     </form>
-    <div id="output" class="output"></div>
+
+    <div id="output" class="output">Click here to copy the generated questions and answers.</div>
   </div>
 
   <script>
     const form = document.getElementById('uploadForm');
     const outputDiv = document.getElementById('output');
     const exportButton = document.getElementById('exportButton');
+    const skillInput = document.getElementById('skillInput');
+    const skillTags = document.getElementById('skillTags');
     let generatedContent = "";
+    let skills = [];
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
-
       const formData = new FormData(form);
+      formData.append('skills', skills.join(','));
       outputDiv.textContent = "Processing...";
       exportButton.disabled = true;
 
@@ -71,29 +218,69 @@
         });
 
         if (response.ok) {
-          generatedContent = await response.text(); 
-          outputDiv.textContent = generatedContent;
-          exportButton.disabled = false;
+          const text = await response.text();
+          generatedContent = text.trim();
+          outputDiv.textContent = generatedContent || "No questions generated."; 
+          exportButton.disabled = generatedContent === "";
         } else {
           outputDiv.textContent = `Error: ${response.statusText}`;
           exportButton.disabled = true;
         }
       } catch (error) {
         outputDiv.textContent = `Error: ${error.message}`;
-        exportButton.disabled = true; 
+        exportButton.disabled = true;
       }
     });
 
     exportButton.addEventListener('click', () => {
-      const blob = new Blob([generatedContent], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'interview_questions.txt'; 
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url); 
+      if (generatedContent) {
+        const blob = new Blob([generatedContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'interview_questions.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    });
+
+    skillInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && skillInput.value.trim()) {
+        event.preventDefault();
+        const skill = skillInput.value.trim();
+        skills.push(skill);
+        updateSkillTags();
+        skillInput.value = '';
+      }
+    });
+
+    function updateSkillTags() {
+      skillTags.innerHTML = '';
+      skills.forEach((skill, index) => {
+        const tag = document.createElement('div');
+        tag.className = 'tag';
+        tag.innerHTML = `${skill} <button class="tag-remove" data-index="${index}">&times;</button>`;
+        skillTags.appendChild(tag);
+      });
+      document.querySelectorAll('.tag-remove').forEach(button =>
+        button.addEventListener('click', (e) => {
+          const index = e.target.dataset.index;
+          skills.splice(index, 1);
+          updateSkillTags();
+        })
+      );
+    }
+
+    outputDiv.addEventListener('click', () => {
+      if (generatedContent) {
+        navigator.clipboard.writeText(generatedContent).then(() => {
+          alert('Copied to clipboard!');
+        }).catch(err => {
+          console.error('Failed to copy: ', err);
+        });
+      }
     });
   </script>
 </body>

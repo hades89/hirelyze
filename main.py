@@ -50,13 +50,16 @@ def generate_interview_questions_and_skills(resume_text, additional_skills):
    - **Intermediate (2-5 years):** Practical questions focusing on usage, scenarios, and problem-solving.
    - **Advanced (More than 5 years):** Complex questions covering advanced topics, architecture, and deep expertise.
 
-4. Generate exactly **10 questions** for each skill and section, matching the skill’s assigned experience level. Ensure that the questions belong exclusively to the assigned level:
+4. If a skill is not listed in the resume but is included in the additional skills, consider it **Beginner** unless you can determine some familiarity based on other skills. Generate questions accordingly.
+
+5. Generate exactly **10 questions** for each skill and section, matching the skill’s assigned experience level. Ensure that the questions belong exclusively to the assigned level:
    - If a skill is Beginner, generate only Beginner-level questions.
    - If a skill is Intermediate, generate only Intermediate-level questions.
    - If a skill is Advanced, generate only Advanced-level questions.
 
-5. Skills and sections for question generation:
-   - Frontend (prioritize framework-related questions: Angular, Vue, React; if the candidate lacks these skills, focus on general JavaScript questions)
+6. Skills and sections for question generation:
+   - Frontend (prioritize framework-related questions: Angular, Vue, React; if the candidate lacks these skills, focus on general JavaScript questions):
+    - If the candidate demonstrates proficiency in Angular, Vue, or React, generate specific questions related to those frameworks. If not, shift to general JavaScript questions.
    - Backend
    - DevOps (e.g., Kubernetes/Docker)
    - Databases
@@ -64,78 +67,78 @@ def generate_interview_questions_and_skills(resume_text, additional_skills):
 
 {skill_prompts}
 
-6. Ensure the question difficulty **aligns only with the assigned experience level** for each skill.
+7. Ensure the question difficulty **aligns only with the assigned experience level** for each skill.
 
-7. **Ensure that questions generated for Frontend and Backend do not overlap with any of the technical skills extracted or additional skills specified**.
+8. **Ensure that questions generated for Frontend and Backend do not overlap with any of the technical skills extracted or additional skills specified**.
 
-8. Format the output as follows, ensuring the use of headings and numbering:
+9. Format the output as follows, ensuring the use of headings and numbering:
    - [Skill Name] | [Start Year - End Year] (Number of years)
 
-   **Frontend Questions (either Beginner, Intermediate, or Advanced)**:
-   1) ....
-   A: ....
-   
-   2) ....
-   A: ....
-   
-   ...
-   
-   10) ....
-   A: ....
+     **Frontend Questions (either Beginner, Intermediate, or Advanced)**:
+       1) .... (provide a concise answer)
+       A: (provide a short answer, ideally one or two sentences)
 
-   **Backend Questions (either Beginner, Intermediate, or Advanced)**:
-   1) ....
-   A: ....
-   
-   2) ....
-   A: ....
-   
-   ...
-   
-   10) ....
-   A: ....
+       2) .... (provide a concise answer)
+       A: (provide a short answer, ideally one or two sentences)
 
-   **DevOps Questions (either Beginner, Intermediate, or Advanced)**:
-   1) ....
-   A: ....
-   
-   2) ....
-   A: ....
-   
-   ...
-   
-   10) ....
-   A: ....
+       ...
+       
+       10) .... (provide a concise answer)
+       A: (provide a short answer, ideally one or two sentences)
 
-   **Databases Questions (either Beginner, Intermediate, or Advanced)**:
-   1) ....
-   A: ....
-   
-   2) ....
-   A: ....
-   
-   ...
-   
-   10) ....
-   A: ....
+       **Backend Questions (either Beginner, Intermediate, or Advanced)**:
+       1) .... (provide a concise answer)
+       A: (provide a short answer, ideally one or two sentences)
 
-   **Git and Version Control Questions (either Beginner, Intermediate, or Advanced)**:
-   1) ....
-   A: ....
-   
-   2) ....
-   A: ....
-   
-   ...
-   
-   10) ....
-   A: ....
+       2) .... (provide a concise answer)
+       A: (provide a short answer, ideally one or two sentences)
 
-   {skill_prompts}  # This includes both additional skills in the desired format
+       ...
+       
+       10) .... (provide a concise answer)
+       A: (provide a short answer, ideally one or two sentences)
 
-9. **Generate only the questions without any additional comments or explanations.**
+       **DevOps Questions (either Beginner, Intermediate, or Advanced)**:
+       1) .... (provide a concise answer)
+       A: (provide a short answer, ideally one or two sentences)
 
-10. **Do not generate questions like “How do you write a ‘Hello, World!’ program.”**
+       2) .... (provide a concise answer)
+       A: (provide a short answer, ideally one or two sentences)
+
+       ...
+       
+       10) .... (provide a concise answer)
+       A: (provide a short answer, ideally one or two sentences)
+
+       **Databases Questions (either Beginner, Intermediate, or Advanced)**:
+       1) .... (provide a concise answer)
+       A: (provide a short answer, ideally one or two sentences)
+
+       2) .... (provide a concise answer)
+       A: (provide a short answer, ideally one or two sentences)
+
+       ...
+       
+       10) .... (provide a concise answer)
+       A: (provide a short answer, ideally one or two sentences)
+
+       **Git and Version Control Questions (either Beginner, Intermediate, or Advanced)**:
+       1) .... (provide a concise answer)
+       A: (provide a short answer, ideally one or two sentences)
+
+       2) .... (provide a concise answer)
+       A: (provide a short answer, ideally one or two sentences)
+
+       ...
+       
+       10) .... (provide a concise answer)
+       A: (provide a short answer, ideally one or two sentences)
+
+       {skill_prompts}  # This includes both additional skills in the desired format
+
+10. **Generate only the questions without any additional comments or explanations.** Ensure that every answer is concise, ideally one or two sentences, and avoid lengthy explanations or examples.
+
+11. **Avoid oversimplified questions** starting with “What is” or similar phrases, and refrain from basic programming examples like “Hello, World!”.
 
     Resume:
     {resume_text}
@@ -146,7 +149,7 @@ def generate_interview_questions_and_skills(resume_text, additional_skills):
         headers=HEADERS,
         json={"messages": [{"role": "user", "content": prompt}]}
     )
-
+ 
     if response.status_code == 200:
         data = response.json()
         return data["choices"][0]["message"]["content"]
@@ -162,9 +165,11 @@ def generate():
     if file.filename == '':
         return "No selected file", 400
 
-    skill1 = request.form.get('skill1', '')
-    skill2 = request.form.get('skill2', '')
+    # Get and split the skills from the form
+    skills = request.form.get('skills', '')  # Default to an empty string if 'skills' is not present
+    additional_skills = [skill.strip() for skill in skills.split(',') if skill.strip()]  # Split and clean
 
+    # Extract resume content based on file type
     if file.filename.endswith(".docx"):
         resume_text = extract_text_from_docx(file)
     elif file.filename.endswith(".pdf"):
@@ -172,8 +177,7 @@ def generate():
     else:
         return "Unsupported file type", 400
 
-    additional_skills = [skill for skill in [skill1, skill2] if skill]
-    
+    # Generate interview questions with additional skills
     result = generate_interview_questions_and_skills(resume_text, additional_skills)
     return result
 
