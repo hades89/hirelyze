@@ -22,4 +22,5 @@ Hirelyze is an interview automation and resume analysis tool designed to streaml
 ```
 
 ## UI
-![image](https://github.com/user-attachments/assets/864a0e71-51ca-4f95-8243-63a99b3229db)
+![image](https://github.com/user-attachments/assets/fae5a2ba-3fa3-4223-b97e-5e2541a47644)
+
