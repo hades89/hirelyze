@@ -73,64 +73,44 @@ def generate_interview_questions_and_skills(resume_text, additional_skills):
 
 9. Format the output as follows, ensuring the use of headings and numbering:
    - [Skill Name] | [Start Year - End Year] (Number of years)
-
      **Frontend Questions (either Beginner, Intermediate, or Advanced)**:
        1) .... (provide a concise answer)
        A: (provide a short answer, ideally one or two sentences)
-
        2) .... (provide a concise answer)
        A: (provide a short answer, ideally one or two sentences)
-
        ...
-       
        10) .... (provide a concise answer)
        A: (provide a short answer, ideally one or two sentences)
-
        **Backend Questions (either Beginner, Intermediate, or Advanced)**:
        1) .... (provide a concise answer)
        A: (provide a short answer, ideally one or two sentences)
-
        2) .... (provide a concise answer)
        A: (provide a short answer, ideally one or two sentences)
-
        ...
-       
        10) .... (provide a concise answer)
        A: (provide a short answer, ideally one or two sentences)
-
        **DevOps Questions (either Beginner, Intermediate, or Advanced)**:
        1) .... (provide a concise answer)
        A: (provide a short answer, ideally one or two sentences)
-
        2) .... (provide a concise answer)
        A: (provide a short answer, ideally one or two sentences)
-
        ...
-       
        10) .... (provide a concise answer)
        A: (provide a short answer, ideally one or two sentences)
-
        **Databases Questions (either Beginner, Intermediate, or Advanced)**:
        1) .... (provide a concise answer)
        A: (provide a short answer, ideally one or two sentences)
-
        2) .... (provide a concise answer)
        A: (provide a short answer, ideally one or two sentences)
-
        ...
-       
        10) .... (provide a concise answer)
        A: (provide a short answer, ideally one or two sentences)
-
        **Git and Version Control Questions (either Beginner, Intermediate, or Advanced)**:
        1) .... (provide a concise answer)
        A: (provide a short answer, ideally one or two sentences)
-
        2) .... (provide a concise answer)
        A: (provide a short answer, ideally one or two sentences)
-
        ...
-       
        10) .... (provide a concise answer)
        A: (provide a short answer, ideally one or two sentences)
 
@@ -152,7 +132,15 @@ def generate_interview_questions_and_skills(resume_text, additional_skills):
  
     if response.status_code == 200:
         data = response.json()
-        return data["choices"][0]["message"]["content"]
+        result = data["choices"][0]["message"]["content"]
+
+        result_with_newlines = []
+        for line in result.splitlines():
+            result_with_newlines.append(line)
+            if line.startswith("A:"):
+                result_with_newlines.append("")
+
+        return "\n".join(result_with_newlines)
     else:
         return f"Error: {response.status_code} - {response.text}"
 
@@ -165,11 +153,9 @@ def generate():
     if file.filename == '':
         return "No selected file", 400
 
-    # Get and split the skills from the form
-    skills = request.form.get('skills', '')  # Default to an empty string if 'skills' is not present
-    additional_skills = [skill.strip() for skill in skills.split(',') if skill.strip()]  # Split and clean
+    skills = request.form.get('skills', '')
+    additional_skills = [skill.strip() for skill in skills.split(',') if skill.strip()]
 
-    # Extract resume content based on file type
     if file.filename.endswith(".docx"):
         resume_text = extract_text_from_docx(file)
     elif file.filename.endswith(".pdf"):
@@ -177,7 +163,6 @@ def generate():
     else:
         return "Unsupported file type", 400
 
-    # Generate interview questions with additional skills
     result = generate_interview_questions_and_skills(resume_text, additional_skills)
     return result
 
